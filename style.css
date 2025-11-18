@@ -1,0 +1,300 @@
+/* ================================
+   PREMIER LEAGUE STYLE — PREMIUM RESPONSIVE
+================================ */
+
+/* COLORS */
+:root {
+  --pl-purple: #3a0057;
+  --pl-purple-light: #5c008a;
+  --pl-light-purple: #f6effa;
+
+  --white: #ffffff;
+  --grey-light: #dcdcdc;
+  --grey-mid: #c7c7c7;
+
+  --text: #222;
+  --border: #e5e5e5;
+  
+  --card-bg: #ffffff;
+  --table-head-bg: var(--pl-purple);
+  --table-head-text: #ffffff;
+}
+
+/* DARK MODE */
+body.dark {
+  --card-bg: #1c1c1c;
+  --text: #e6e6e6;
+  --border: #333;
+  --table-head-bg: #2d0047;
+  background: #121212 !important;
+  color: #e6e6e6;
+}
+
+/* BODY */
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--pl-light-purple);
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--text);
+}
+
+/* ================= HEADER ================= */
+.topbar {
+  background: var(--pl-purple);
+  padding: 15px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.brand h1 {
+  font-size: 26px;
+  margin: 0;
+}
+
+/* ================= TABS ================= */
+.tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 7px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.tab-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.tab-btn.active {
+  background: white;
+  color: var(--pl-purple);
+  font-weight: bold;
+}
+
+/* DARK MODE SWITCH */
+.switch {
+  margin-left: auto;
+}
+
+/* ================= MAIN ================= */
+main {
+  padding: 25px;
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+/* ================= CARD ================= */
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ================= TABLE ================= */
+.table-wrap {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+thead th {
+  background: var(--table-head-bg);
+  color: var(--table-head-text);
+  padding: 12px;
+  font-size: 15px;
+  border-bottom: 3px solid var(--pl-purple-light);
+}
+
+tbody td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(0,0,0,0.03);
+}
+
+tbody tr:hover {
+  background: rgba(0,0,0,0.07);
+}
+
+body.dark tbody tr:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+/* Ranking colors */
+.rank-champion {
+  background: #e6ffe6 !important;
+  font-weight: bold;
+}
+
+.rank-ucl {
+  background: #e6f4ff !important;
+}
+
+.rank-relegation {
+  background: #ffe8e8 !important;
+}
+
+/* ================= BUTTONS ================= */
+.btn {
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  background: var(--white);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn:hover {
+  background: var(--grey-light);
+}
+
+.btn.primary {
+  background: var(--pl-purple);
+  border-color: var(--pl-purple);
+  color: white;
+}
+
+.btn.primary:hover {
+  background: var(--pl-purple-light);
+}
+
+.btn.danger {
+  background: #d9534f;
+  color: white;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* TEAM LIST */
+.team-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.team-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--pl-light-purple);
+  margin-bottom: 6px;
+}
+
+.small-btn {
+  padding: 4px 10px;
+  background: var(--pl-purple);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.small-btn:hover {
+  opacity: .8;
+}
+
+/* INPUTS */
+input {
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.score {
+  width: 45px;
+  padding: 6px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+/* Tablet */
+@media (max-width: 768px) {
+  main {
+    padding: 15px;
+  }
+
+  table {
+    min-width: 650px;
+  }
+
+  .topbar {
+    text-align: center;
+  }
+
+  .page-head {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  table {
+    min-width: 580px;
+  }
+
+  .score {
+    width: 38px;
+    font-size: 13px;
+  }
+
+  .btn {
+    padding: 6px 12px;
+  }
+
+  .topbar {
+    padding: 10px;
+  }
+}
+
+/* Hidden class */
+.hidden {
+  display: none !important;
+}

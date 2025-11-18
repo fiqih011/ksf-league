@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Premier League Style Manager</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1 id="leagueName"></h1>
+    </div>
+
+    <nav class="tabs">
+      <button id="navStandings" class="tab-btn active">📊 Klasemen</button>
+      <button id="navFixtures" class="tab-btn">📅 Jadwal</button>
+      <button id="navAdmin" class="tab-btn">⚙️ Admin</button>
+
+      <label class="switch">
+        <input id="darkToggle" type="checkbox" />
+        <span class="slider"></span>
+      </label>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===================== Klasemen ===================== -->
+    <section id="pageStandings" class="page">
+      <div class="page-head">
+        <h2>Klasemen</h2>
+        <div class="page-actions">
+          <button id="downloadStandings" class="btn">⬇ Excel</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="standingsTable" class="prem-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Team</th>
+                <th>P</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>GF</th>
+                <th>GA</th>
+                <th>GD</th>
+                <th>Pts</th>
+                <th>Form</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Jadwal ===================== -->
+    <section id="pageFixtures" class="page hidden">
+      <div class="page-head">
+        <h2>Jadwal Pertandingan</h2>
+        <button id="downloadFixtures" class="btn">⬇ Excel</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="fixturesTable" class="prem-table">
+            <thead>
+              <tr>
+                <th>Round</th>
+                <th>Home</th>
+                <th>Skor</th>
+                <th></th>
+                <th>Skor</th>
+                <th>Away</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== Admin ===================== -->
+    <section id="pageAdmin" class="page hidden">
+      <div class="page-head">
+        <h2>Admin Input</h2>
+      </div>
+
+      <div class="card split">
+        <div>
+          <h3>Informasi Liga</h3>
+          <label>Nama Liga</label>
+          <div class="row">
+            <input id="leagueNameInput" placeholder="Misal: Premier League" />
+            <button id="saveLeagueBtn" class="btn">Simpan</button>
+          </div>
+
+          <h3>Input Tim</h3>
+          <label>Nama Tim</label>
+          <div class="row">
+            <input id="teamName" placeholder="Nama tim" />
+            <button id="addTeamBtn" class="btn">Tambah</button>
+            <button id="resetAllBtn" class="btn danger">Reset Semua</button>
+          </div>
+
+          <h4>Daftar Tim</h4>
+          <ul id="teamList" class="team-list"></ul>
+
+          <template id="teamActionsTemplate">
+            <button class="small-btn edit-name-btn">Edit</button>
+            <button class="small-btn delete-btn">Hapus</button>
+          </template>
+
+          <button id="generateBtn" class="btn primary" style="margin-top:12px;">Generate Jadwal (Double RR)</button>
+        </div>
+
+        <div>
+          <h3>Input Hasil</h3>
+          <p class="muted">Input skor berada di menu Jadwal.</p>
+          <div class="row">
+            <button onclick="showPage(pageFixtures)" class="btn primary">Pergi ke Jadwal</button>
+            <button onclick="showPage(pageStandings)" class="btn">Lihat Klasemen</button>
+          </div>
+          <hr>
+
+          <h4>Opsi Lain</h4>
+          <div class="row">
+            <button id="exportJSON" class="btn">Export JSON</button>
+            <button id="importJSON" class="btn">Import JSON</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Supabase SDK + config (HARUS sebelum script.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseConfig.js"></script>
+
+  <!-- Main app script -->
+  <script src="script.js"></script>
+</body>
+</html>
