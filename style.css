@@ -14,7 +14,7 @@
 
   --text: #222;
   --border: #e5e5e5;
-  
+
   --card-bg: #ffffff;
   --table-head-bg: var(--pl-purple);
   --table-head-text: #ffffff;
@@ -297,4 +297,44 @@ input {
 /* Hidden class */
 .hidden {
   display: none !important;
+}
+/* ======== Klasemen Highlight ======== */
+
+/* Peringkat pertama */
+#standingsTable tbody tr:nth-child(1) {
+  background: #d4f7d4 !important; /* hijau muda */
+}
+
+/* Dua terbawah (zona merah) */
+#standingsTable tbody tr:last-child,
+#standingsTable tbody tr:nth-last-child(2) {
+  background: #ffe5e5 !important; /* merah muda */
+}
+
+/* ======== Form Badges ======== */
+
+.form-badge {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  line-height: 22px;
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+.form-badge.win {
+  background: #28a745;  /* hijau */
+}
+
+.form-badge.draw {
+  background: #ffc107;  /* kuning */
+  color: black;
+}
+
+.form-badge.loss {
+  background: #dc3545;  /* merah */
 }

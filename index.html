@@ -28,7 +28,8 @@
   </header>
 
   <main>
-    <!-- ===================== Klasemen ===================== -->
+
+    <!-- ====================== KLASMEN ====================== -->
     <section id="pageStandings" class="page">
       <div class="page-head">
         <h2>Klasemen</h2>
@@ -61,7 +62,8 @@
       </div>
     </section>
 
-    <!-- ===================== Jadwal ===================== -->
+
+    <!-- ====================== JADWAL ====================== -->
     <section id="pageFixtures" class="page hidden">
       <div class="page-head">
         <h2>Jadwal Pertandingan</h2>
@@ -88,13 +90,16 @@
       </div>
     </section>
 
-    <!-- ===================== Admin ===================== -->
+
+    <!-- ====================== ADMIN ====================== -->
     <section id="pageAdmin" class="page hidden">
       <div class="page-head">
         <h2>Admin Input</h2>
       </div>
 
       <div class="card split">
+
+        <!-- ===== COL 1 ===== -->
         <div>
           <h3>Informasi Liga</h3>
           <label>Nama Liga</label>
@@ -119,9 +124,12 @@
             <button class="small-btn delete-btn">Hapus</button>
           </template>
 
-          <button id="generateBtn" class="btn primary" style="margin-top:12px;">Generate Jadwal (Double RR)</button>
+          <button id="generateBtn" class="btn primary" style="margin-top:12px;">
+            Generate Jadwal (Double RR)
+          </button>
         </div>
 
+        <!-- ===== COL 2 ===== -->
         <div>
           <h3>Input Hasil</h3>
           <p class="muted">Input skor berada di menu Jadwal.</p>
@@ -129,24 +137,27 @@
             <button onclick="showPage(pageFixtures)" class="btn primary">Pergi ke Jadwal</button>
             <button onclick="showPage(pageStandings)" class="btn">Lihat Klasemen</button>
           </div>
+
           <hr>
 
-          <h4>Opsi Lain</h4>
-          <div class="row">
+          <!-- =============== OPSI LAIN (DIKEMBALIKAN) =============== -->
+          <h3>Opsi Lain</h3>
+          <div class="row" style="margin-top:10px;">
             <button id="exportJSON" class="btn">Export JSON</button>
             <button id="importJSON" class="btn">Import JSON</button>
           </div>
+          <!-- ======================================================= -->
+
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Supabase SDK + config (HARUS sebelum script.js) -->
+  <!-- ====================== SCRIPT ====================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabaseConfig.js"></script>
-
-  <!-- Main app script -->
   <script src="script.js"></script>
+
 </body>
 </html>
