@@ -1,6 +1,6 @@
-/* ================================
+/* ============================================================
    PREMIER LEAGUE STYLE — PREMIUM RESPONSIVE
-================================ */
+=========================================================== */
 
 /* COLORS */
 :root {
@@ -20,7 +20,7 @@
   --table-head-text: #ffffff;
 }
 
-/* DARK MODE */
+/* ========== DARK MODE ========== */
 body.dark {
   --card-bg: #1c1c1c;
   --text: #e6e6e6;
@@ -83,11 +83,6 @@ body {
   font-weight: bold;
 }
 
-/* DARK MODE SWITCH */
-.switch {
-  margin-left: auto;
-}
-
 /* ================= MAIN ================= */
 main {
   padding: 25px;
@@ -114,10 +109,7 @@ main {
 }
 
 /* ================= TABLE ================= */
-.table-wrap {
-  overflow-x: auto;
-  width: 100%;
-}
+.table-wrap { overflow-x: auto; width: 100%; }
 
 table {
   width: 100%;
@@ -152,18 +144,14 @@ body.dark tbody tr:hover {
   background: rgba(255,255,255,0.07);
 }
 
-/* Ranking colors */
-.rank-champion {
-  background: #e6ffe6 !important;
-  font-weight: bold;
+/* ========== RANK HIGHLIGHT EPL ========== */
+#standingsTable tbody tr:nth-child(1) {
+  background: #d4f7d4 !important; /* juara */
 }
 
-.rank-ucl {
-  background: #e6f4ff !important;
-}
-
-.rank-relegation {
-  background: #ffe8e8 !important;
+#standingsTable tbody tr:last-child,
+#standingsTable tbody tr:nth-last-child(2) {
+  background: #ffe5e5 !important; /* degradasi */
 }
 
 /* ================= BUTTONS ================= */
@@ -176,9 +164,7 @@ body.dark tbody tr:hover {
   transition: .2s;
 }
 
-.btn:hover {
-  background: var(--grey-light);
-}
+.btn:hover { background: var(--grey-light); }
 
 .btn.primary {
   background: var(--pl-purple);
@@ -186,27 +172,17 @@ body.dark tbody tr:hover {
   color: white;
 }
 
-.btn.primary:hover {
-  background: var(--pl-purple-light);
-}
+.btn.primary:hover { background: var(--pl-purple-light); }
 
 .btn.danger {
   background: #d9534f;
   color: white;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* TEAM LIST */
-.team-list {
-  list-style: none;
-  padding-left: 0;
-}
+.team-list { list-style: none; padding-left: 0; }
 
 .team-item {
   display: flex;
@@ -218,20 +194,7 @@ body.dark tbody tr:hover {
   margin-bottom: 6px;
 }
 
-.small-btn {
-  padding: 4px 10px;
-  background: var(--pl-purple);
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  border: none;
-}
-
-.small-btn:hover {
-  opacity: .8;
-}
-
-/* INPUTS */
+/* ================= INPUT ================= */
 input {
   padding: 7px 10px;
   border-radius: 6px;
@@ -239,102 +202,351 @@ input {
   font-size: 14px;
 }
 
-.score {
-  width: 45px;
-  padding: 6px;
-  text-align: center;
-  font-size: 14px;
+.score { width: 45px; }
+
+/* ================= REMOVE SPINNER ================= */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
 }
 
-/* ================= RESPONSIVE ================= */
+input[type=number] { -moz-appearance: textfield; }
 
-/* Tablet */
-@media (max-width: 768px) {
-  main {
-    padding: 15px;
-  }
-
-  table {
-    min-width: 650px;
-  }
-
-  .topbar {
-    text-align: center;
-  }
-
-  .page-head {
-    flex-direction: column;
-    text-align: center;
-    gap: 8px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  .tab-btn {
-    padding: 6px 12px;
-    font-size: 14px;
-  }
-
-  table {
-    min-width: 580px;
-  }
-
-  .score {
-    width: 38px;
-    font-size: 13px;
-  }
-
-  .btn {
-    padding: 6px 12px;
-  }
-
-  .topbar {
-    padding: 10px;
-  }
-}
-
-/* Hidden class */
-.hidden {
-  display: none !important;
-}
-/* ======== Klasemen Highlight ======== */
-
-/* Peringkat pertama */
-#standingsTable tbody tr:nth-child(1) {
-  background: #d4f7d4 !important; /* hijau muda */
-}
-
-/* Dua terbawah (zona merah) */
-#standingsTable tbody tr:last-child,
-#standingsTable tbody tr:nth-last-child(2) {
-  background: #ffe5e5 !important; /* merah muda */
-}
-
-/* ======== Form Badges ======== */
-
+/* ============================================================
+   EPL PREMIUM BADGE (CIRCLES)
+=========================================================== */
 .form-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: 4px;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  line-height: 22px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
   margin-right: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transition: 0.15s ease;
+  animation: slideInEPL .25s ease;
+}
+
+.form-badge.win { background: #28A745; }
+.form-badge.draw { background: #CED4DA; color: #000; }
+.form-badge.lose { background: #DC3545; }
+
+/* Tooltip */
+.form-badge[data-tip] { position: relative; cursor: pointer; }
+
+.form-badge[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f1f1f;
+  color: #fff;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+.form-badge[data-tip]:hover::after { opacity: 1; }
+
+/* Animation */
+@keyframes slideInEPL {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   MINI FORM BAR
+=========================================================== */
+.form-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.form-bar div {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+}
+
+.form-bar .win  { background:#28A745; }
+.form-bar .draw { background:#ADB5BD; }
+.form-bar .lose { background:#DC3545; }
+
+/* LIMIT COLUMN WIDTH */
+#standingsTable th:nth-child(11),
+#standingsTable td:nth-child(11) {
+  width: 120px;
+  text-align: center;
+}
+
+/* ================== ACTION BUTTONS ================== */
+.action-btn {
+  padding: 4px 8px;
   font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
 }
 
-.form-badge.win {
-  background: #28a745;  /* hijau */
+.action-btn.edit { background:#007bff; color:white; }
+.action-btn.save { background:#28a745; color:white; }
+.action-btn.cancel { background:#dc3545; color:white; }
+
+.hidden { display: none !important; }
+
+/* Last 5 container: biar lurus ke samping */
+.last5-container {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap; /* penting agar tidak turun! */
 }
 
-.form-badge.draw {
-  background: #ffc107;  /* kuning */
-  color: black;
+/* Kunci lebar kolom Last 5 */
+#standingsTable th:nth-child(11),
+#standingsTable td:nth-child(11) {
+  width: 140px;
+  white-space: nowrap;
+  text-align: center;
+}
+.standings-info {
+  display: flex;
+  gap: 60px;
+  margin: 25px auto;
+  max-width: 900px;
+  justify-content: space-between;
 }
 
-.form-badge.loss {
-  background: #dc3545;  /* merah */
+.info-col {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 18px 22px;
+  border-radius: 14px;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.info-col h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--pl-purple);
+}
+
+.info-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.info-col li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+/* DOT ICON */
+.dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.green { background: #2ecc71; }
+.dot.red   { background: #e74c3c; }
+
+/* W/D/L BADGES */
+.badge {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+
+.badge.w {
+  background: #27ae60; /* Hijau menang */
+}
+
+.badge.d {
+  background: #bdc3c7; /* Abu seri */
+  color: #000;
+}
+
+.badge.l {
+  background: #DC3545; /* Merah kalah */
+}
+/* ===== INFO BOX BESAR ===== */
+.info-box-wide {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 1200px;
+  margin: 25px auto 0 auto;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.info-col {
+  flex: 1;
+  min-width: 250px;
+}
+
+.info-col h3 {
+  margin: 0 0 10px 0;
+  font-size: 17px;
+  font-weight: bold;
+  color: var(--pl-purple);
+}
+
+.info-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.info-col li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+  font-size: 15px;
+}
+.info-box-wide {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  max-width: 1200px;
+  margin: 25px auto 0 auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 50px;
+}
+
+.info-col { flex: 1; }
+
+.info-col h3 {
+  margin-bottom: 10px;
+  font-size: 17px;
+  color: var(--pl-purple);
+  font-weight: bold;
+}
+
+.info-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-col li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+/* ====================== INFO BOX WIDE (2 COL) ====================== */
+
+.info-box-wide {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 16px;
+  padding: 10px 20px; /* sedikit mengecil */
+  margin-top: 20px;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.info-col-left,
+.info-col-right {
+  flex: 1;
+}
+
+.info-box-wide h3 {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--pl-purple);
+  font-size: 14px;     /* lebih kecil */
+}
+
+.info-box-wide ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.info-box-wide li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;     /* lebih kecil */
+  margin: 5px 0;
+}
+
+/* Mobile stack layout */
+@media (max-width: 720px) {
+  .info-box-wide {
+    flex-direction: column;
+    gap: 18px;
+  }
+}
+/* ================== ACTION BUTTONS ================== */
+.action-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.action-btn.edit { background:#007bff; color:white; }
+.action-btn.save { background:#28a745; color:white; }
+.action-btn.cancel { background:#dc3545; color:white; }
+
+.hidden { display: none !important; }
+
+/* ====== 👉 TAMBAHKAN DI BAWAH SINI ====== */
+
+/* ================== FIXTURE STATUS STYLE ================== */
+.status-done {
+  background: #d4f7d4;
+  color: #1e7e34;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.status-pending {
+  background: #fff8c6;
+  color: #8a6d00;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 6px 10px;
 }

@@ -2,14 +2,17 @@
 <html lang="id">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Premier League Style Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KSF League</title>
 
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <body>
+
+  <!-- ====================== TOPBAR ====================== -->
   <header class="topbar">
     <div class="brand">
       <h1 id="leagueName"></h1>
@@ -29,8 +32,11 @@
 
   <main>
 
-    <!-- ====================== KLASMEN ====================== -->
+    <!-- =====================================================
+         PAGE: KLASMEN
+    ====================================================== -->
     <section id="pageStandings" class="page">
+
       <div class="page-head">
         <h2>Klasemen</h2>
         <div class="page-actions">
@@ -38,12 +44,13 @@
         </div>
       </div>
 
+      <!-- ==== TABEL KLASMEN ==== -->
       <div class="card">
         <div class="table-wrap">
           <table id="standingsTable" class="prem-table">
             <thead>
               <tr>
-                <th>#</th>
+                <th>Pos</th>
                 <th>Team</th>
                 <th>P</th>
                 <th>W</th>
@@ -53,18 +60,48 @@
                 <th>GA</th>
                 <th>GD</th>
                 <th>Pts</th>
-                <th>Form</th>
+                <th>Last 5 matches</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
+
+      <!-- ==== INFO BOX BESAR (1 KOTAK) ==== -->
+      <!-- ==== INFO BOX BESAR (1 KOTAK / 2 KOLOM) ==== -->
+<div class="info-box-wide">
+
+  <div class="info-col-left">
+    <h3>Kualifikasi & Degradasi</h3>
+    <ul>
+      <li><span class="dot green"></span> Juara Liga</li>
+      <li><span class="dot red"></span> Degradasi (2 tim terbawah)</li>
+    </ul>
+  </div>
+
+  <div class="info-col-right">
+    <h3>5 pertandingan terakhir</h3>
+    <ul>
+      <li><span class="badge w">W</span> Menang</li>
+      <li><span class="badge d">D</span> Seri</li>
+      <li><span class="badge l">L</span> Kalah</li>
+    </ul>
+  </div>
+
+</div>
+
+
     </section>
+    <!-- END PAGE STANDINGS -->
 
 
-    <!-- ====================== JADWAL ====================== -->
+
+    <!-- =====================================================
+         PAGE: JADWAL
+    ====================================================== -->
     <section id="pageFixtures" class="page hidden">
+
       <div class="page-head">
         <h2>Jadwal Pertandingan</h2>
         <button id="downloadFixtures" class="btn">⬇ Excel</button>
@@ -82,25 +119,33 @@
                 <th>Skor</th>
                 <th>Away</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
+
     </section>
+    <!-- END PAGE FIXTURES -->
 
 
-    <!-- ====================== ADMIN ====================== -->
+
+    <!-- =====================================================
+         PAGE: ADMIN
+    ====================================================== -->
     <section id="pageAdmin" class="page hidden">
+
       <div class="page-head">
         <h2>Admin Input</h2>
       </div>
 
       <div class="card split">
 
-        <!-- ===== COL 1 ===== -->
+        <!-- COL 1 -->
         <div>
+
           <h3>Informasi Liga</h3>
           <label>Nama Liga</label>
           <div class="row">
@@ -127,9 +172,10 @@
           <button id="generateBtn" class="btn primary" style="margin-top:12px;">
             Generate Jadwal (Double RR)
           </button>
+
         </div>
 
-        <!-- ===== COL 2 ===== -->
+        <!-- COL 2 -->
         <div>
           <h3>Input Hasil</h3>
           <p class="muted">Input skor berada di menu Jadwal.</p>
@@ -137,24 +183,16 @@
             <button onclick="showPage(pageFixtures)" class="btn primary">Pergi ke Jadwal</button>
             <button onclick="showPage(pageStandings)" class="btn">Lihat Klasemen</button>
           </div>
-
-          <hr>
-
-          <!-- =============== OPSI LAIN (DIKEMBALIKAN) =============== -->
-          <h3>Opsi Lain</h3>
-          <div class="row" style="margin-top:10px;">
-            <button id="exportJSON" class="btn">Export JSON</button>
-            <button id="importJSON" class="btn">Import JSON</button>
-          </div>
-          <!-- ======================================================= -->
-
         </div>
+
       </div>
+
     </section>
+    <!-- END PAGE ADMIN -->
 
   </main>
 
-  <!-- ====================== SCRIPT ====================== -->
+  <!-- SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabaseConfig.js"></script>
   <script src="script.js"></script>

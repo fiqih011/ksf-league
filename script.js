@@ -1,5 +1,5 @@
 // ====================================================
-// KSF LEAGUE — FINAL SUPER FIX + match_no
+// KSF LEAGUE — FINAL SCRIPT (PREMIUM VERSION)
 // ====================================================
 
 // GLOBAL STATE
@@ -10,13 +10,18 @@ let state = {
 };
 
 // SENTINELS
-const UUID_SENTINEL = "00000000-0000-0000-0000-000000000000"; 
+const UUID_SENTINEL = "00000000-0000-0000-0000-000000000000";
 const INT_SENTINEL = -1;
 
 // ERROR HANDLER
 function handleError(context, err) {
   console.error(context, err);
-  alert("Error: " + (err?.message || context));
+  Swal.fire({
+    icon: "error",
+    title: "Terjadi Kesalahan!",
+    text: err?.message || context,
+    confirmButtonColor: "#d33"
+  });
 }
 
 // SUPABASE CLIENT
@@ -55,8 +60,6 @@ const resetAllBtn = document.getElementById("resetAllBtn");
 const fixturesTbody  = document.querySelector("#fixturesTable tbody");
 const standingsTbody = document.querySelector("#standingsTable tbody");
 
-const exportJSON   = document.getElementById("exportJSON");
-const importJSON   = document.getElementById("importJSON");
 const downloadStandings = document.getElementById("downloadStandings");
 const downloadFixtures  = document.getElementById("downloadFixtures");
 
@@ -83,12 +86,11 @@ navStandings.onclick = () => showPage(pageStandings);
 navFixtures.onclick  = () => showPage(pageFixtures);
 navAdmin.onclick     = () => showPage(pageAdmin);
 
-// ------------------------
+// ====================================================
 // LOAD DATA
-// ------------------------
+// ====================================================
 async function loadData() {
   try {
-    // LEAGUE NAME
     const { data: leagueData, error: leagueErr } = await supa()
       .from("league_info")
       .select("league_name")
@@ -101,7 +103,6 @@ async function loadData() {
     leagueNameEl.textContent = state.leagueName;
     leagueNameInput.value = state.leagueName;
 
-    // TEAMS
     const { data: teams, error: teamsErr } = await supa()
       .from("teams")
       .select("*")
@@ -110,7 +111,6 @@ async function loadData() {
     if (teamsErr) return handleError("load teams", teamsErr);
     state.teams = teams || [];
 
-    // FIXTURES (stable sort)
     const { data: fixtures, error: fixErr } = await supa()
       .from("fixtures")
       .select("*")
@@ -132,55 +132,87 @@ async function loadData() {
 // SAVE LEAGUE NAME
 // ====================================================
 saveLeagueBtn.onclick = async () => {
-  try {
-    const name = leagueNameInput.value.trim();
-    if (!name) return alert("Nama liga tidak boleh kosong.");
-
-    const { error } = await supa()
-      .from("league_info")
-      .upsert([{ id: 1, league_name: name }], { onConflict: "id" });
-
-    if (error) return handleError("save league", error);
-
-    await loadData();
-  } catch (err) {
-    handleError("save league crash", err);
+  const name = leagueNameInput.value.trim();
+  if (!name) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Nama kosong",
+      text: "Masukkan nama liga!",
+      confirmButtonColor: "#7b2cbf"
+    });
   }
+
+  const { error } = await supa()
+    .from("league_info")
+    .upsert([{ id: 1, league_name: name }]);
+
+  if (error) return handleError("save league", error);
+
+  Swal.fire({
+    icon: "success",
+    title: "Nama liga disimpan",
+    text: "Nama liga berhasil diperbarui.",
+    confirmButtonColor: "#7b2cbf"
+  });
+
+  await loadData();
 };
 
 // ====================================================
 // TEAM MANAGEMENT
 // ====================================================
-
 addTeamBtn.onclick = addTeam;
 teamNameInput.onkeypress = e => { if (e.key === "Enter") addTeam(); };
 
 async function addTeam() {
-  try {
-    const name = teamNameInput.value.trim();
-    if (!name) return alert("Masukkan nama tim");
+  const name = teamNameInput.value.trim();
+  if (!name)
+    return Swal.fire({
+      icon: "warning",
+      title: "Nama tim kosong",
+      text: "Masukkan nama tim!",
+      confirmButtonColor: "#7b2cbf"
+    });
 
-    if (state.teams.some(t => t.name.toLowerCase() === name.toLowerCase()))
-      return alert("Nama tim sudah ada!");
+  if (state.teams.some(t => t.name.toLowerCase() === name.toLowerCase()))
+    return Swal.fire({
+      icon: "error",
+      title: "Duplikat",
+      text: "Nama tim sudah ada!",
+      confirmButtonColor: "#d9534f"
+    });
 
-    const { error } = await supa()
-      .from("teams")
-      .insert([{ name }]);
+  const { error } = await supa().from("teams").insert([{ name }]);
+  if (error) return handleError("addTeam", error);
 
-    if (error) return handleError("addTeam", error);
+  Swal.fire({
+    icon: "success",
+    title: "Tim ditambahkan",
+    text: `"${name}" berhasil masuk daftar.`,
+    confirmButtonColor: "#7b2cbf"
+  });
 
-    await loadData();
-    teamNameInput.value = "";
-  } catch (err) {
-    handleError("addTeam crash", err);
-  }
+  await loadData();
+  teamNameInput.value = "";
 }
-
+// ====================================================
+// EDIT NAMA TIM
+// ====================================================
 async function editTeamName(id) {
   const t = state.teams.find(x => x.id === id);
-  if (!t) return alert("Tim tidak ditemukan.");
+  if (!t) return;
 
-  const newName = prompt("Nama baru:", t.name);
+  const { value: newName } = await Swal.fire({
+    title: "Edit Nama Tim",
+    input: "text",
+    inputLabel: "Nama baru:",
+    inputValue: t.name,
+    confirmButtonText: "Simpan",
+    showCancelButton: true,
+    confirmButtonColor: "#7b2cbf",
+    cancelButtonColor: "#6c757d"
+  });
+
   if (!newName) return;
 
   const { error } = await supa()
@@ -190,29 +222,53 @@ async function editTeamName(id) {
 
   if (error) return handleError("editTeamName", error);
 
+  Swal.fire({
+    icon: "success",
+    title: "Berhasil!",
+    text: "Nama tim diperbarui.",
+    confirmButtonColor: "#7b2cbf"
+  });
+
   await loadData();
 }
 
+// ====================================================
+// HAPUS TIM
+// ====================================================
 async function deleteTeam(id) {
-  if (!confirm("Hapus tim ini dan seluruh jadwal yang terkait?")) return;
+  const t = state.teams.find(x => x.id === id);
 
-  const { error: fixErr } = await supa()
-    .from("fixtures")
+  const ok = await Swal.fire({
+    icon: "warning",
+    title: `Hapus tim "${t.name}"?`,
+    text: "Semua jadwal terkait juga ikut terhapus!",
+    showCancelButton: true,
+    confirmButtonColor: "#d9534f",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Hapus"
+  });
+
+  if (!ok.isConfirmed) return;
+
+  await supa().from("fixtures")
     .delete()
     .or(`home_id.eq.${id},away_id.eq.${id}`);
 
-  if (fixErr) return handleError("deleteTeam fixtures", fixErr);
+  await supa().from("teams").delete().eq("id", id);
 
-  const { error: teamErr } = await supa()
-    .from("teams")
-    .delete()
-    .eq("id", id);
-
-  if (teamErr) return handleError("deleteTeam", teamErr);
+  Swal.fire({
+    icon: "success",
+    title: "Tim dihapus",
+    text: "Tim & seluruh jadwal berhasil dihapus.",
+    confirmButtonColor: "#7b2cbf"
+  });
 
   await loadData();
 }
 
+// ====================================================
+// RENDER LIST TIM
+// ====================================================
 function renderTeams() {
   teamListEl.innerHTML = "";
   state.teams.forEach(t => {
@@ -232,9 +288,8 @@ function renderTeams() {
 }
 
 // ====================================================
-// FIXTURES
+// FIXTURES — PREMIUM EDIT / SAVE / CANCEL
 // ====================================================
-
 function getTeamNameById(id) {
   const t = state.teams.find(x => x.id === id);
   return t ? t.name : "-";
@@ -244,354 +299,318 @@ function renderFixtures() {
   fixturesTbody.innerHTML = "";
 
   state.fixtures.forEach(m => {
-    const gh = m.gh == null ? "" : m.gh;
-    const ga = m.ga == null ? "" : m.ga;
+    const gh = m.gh ?? "";
+    const ga = m.ga ?? "";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${m.round}</td>
       <td class="left">${escapeHtml(getTeamNameById(m.home_id))}</td>
-      <td><input type="number" min="0" value="${gh}"
-          onchange="onScoreChange('${m.id}', this.value, 'gh')" class="score"></td>
+
+      <td><input type="number" id="gh-${m.id}" value="${gh}" class="score" disabled></td>
       <td>vs</td>
-      <td><input type="number" min="0" value="${ga}"
-          onchange="onScoreChange('${m.id}', this.value, 'ga')" class="score"></td>
+      <td><input type="number" id="ga-${m.id}" value="${ga}" class="score" disabled></td>
+
       <td class="left">${escapeHtml(getTeamNameById(m.away_id))}</td>
-      <td>${(m.gh != null && m.ga != null) ? "DONE" : "PENDING"}</td>
+
+      <td id="status-${m.id}" class="${(m.gh != null && m.ga != null) ? "status-done" : "status-pending"}">
+        ${(m.gh != null && m.ga != null) ? "DONE" : "PENDING"}
+      </td>
+
+      <td>
+        <button class="action-btn edit" id="edit-${m.id}">Edit</button>
+        <button class="action-btn save hidden" id="save-${m.id}">Save</button>
+        <button class="action-btn cancel hidden" id="cancel-${m.id}">Cancel</button>
+      </td>
     `;
     fixturesTbody.appendChild(tr);
+
+    // EDIT MODE
+    document.getElementById(`edit-${m.id}`).onclick = () => {
+      document.getElementById(`gh-${m.id}`).disabled = false;
+      document.getElementById(`ga-${m.id}`).disabled = false;
+
+      document.getElementById(`edit-${m.id}`).classList.add("hidden");
+      document.getElementById(`save-${m.id}`).classList.remove("hidden");
+      document.getElementById(`cancel-${m.id}`).classList.remove("hidden");
+    };
+
+    // SAVE SCORE (SweetAlert2)
+    document.getElementById(`save-${m.id}`).onclick = async () => {
+      const newGh = document.getElementById(`gh-${m.id}`).value;
+      const newGa = document.getElementById(`ga-${m.id}`).value;
+
+      if (newGh === "" || newGa === "") {
+        return Swal.fire({
+          icon: "warning",
+          title: "Skor belum lengkap",
+          text: "Isi skor Home dan Away.",
+          confirmButtonColor: "#7b2cbf"
+        });
+      }
+
+      const payload = {
+        gh: parseInt(newGh),
+        ga: parseInt(newGa),
+        status: "DONE"
+      };
+
+      await supa().from("fixtures").update(payload).eq("id", m.id);
+
+      await loadData();
+
+      Swal.fire({
+        icon: "success",
+        title: "Skor tersimpan!",
+        timer: 1200,
+        showConfirmButton: false
+      });
+    };
+
+    // CANCEL EDIT
+    document.getElementById(`cancel-${m.id}`).onclick = () => {
+      document.getElementById(`gh-${m.id}`).value = gh;
+      document.getElementById(`ga-${m.id}`).value = ga;
+
+      document.getElementById(`gh-${m.id}`).disabled = true;
+      document.getElementById(`ga-${m.id}`).disabled = true;
+
+      document.getElementById(`edit-${m.id}`).classList.remove("hidden");
+      document.getElementById(`save-${m.id}`).classList.add("hidden");
+      document.getElementById(`cancel-${m.id}`).classList.add("hidden");
+
+      Swal.fire({
+        icon: "info",
+        title: "Dibatalkan",
+        timer: 900,
+        showConfirmButton: false
+      });
+    };
   });
 }
 
-window.onScoreChange = async (id, val, key) => {
+// ====================================================
+// GENERATE FIXTURES — PREMIUM SWEETALERT2
+// ====================================================
+generateBtn.onclick = async () => {
+  if (state.teams.length < 2) {
+    return Swal.fire({
+      icon: "error",
+      title: "Tidak cukup tim!",
+      text: "Minimal harus ada 2 tim.",
+      confirmButtonColor: "#7b2cbf"
+    });
+  }
+
+  const ok = await Swal.fire({
+    icon: "warning",
+    title: "Generate ulang jadwal?",
+    text: "Semua jadwal lama akan terhapus!",
+    showCancelButton: true,
+    confirmButtonColor: "#7b2cbf",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Lanjutkan"
+  });
+
+  if (!ok.isConfirmed) return;
+
   try {
-    const num = val === "" ? null : parseInt(val);
+    const teams = [...state.teams];
+    const n = teams.length;
 
-    const { data: old, error: oldErr } = await supa()
-      .from("fixtures")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    await supa().from("fixtures").delete().neq("id", UUID_SENTINEL);
 
-    if (oldErr) return handleError("updateScore get fixture", oldErr);
+    let fixtures = [];
+    let matchNo = 1;
 
-    const newGh = key === "gh" ? num : old.gh;
-    const newGa = key === "ga" ? num : old.ga;
-    const newStatus = (newGh != null && newGa != null) ? "DONE" : "PENDING";
+    for (let r = 1; r <= n - 1; r++) {
+      for (let i = 0; i < n / 2; i++) {
+        fixtures.push({
+          round: r,
+          match_no: matchNo++,
+          home_id: teams[i].id,
+          away_id: teams[n - 1 - i].id
+        });
+      }
 
-    const payload = { status: newStatus };
-    payload[key] = num;
+      const fixed = teams[0];
+      const rotated = teams.splice(1);
+      rotated.unshift(rotated.pop());
+      teams.splice(1, 0, ...rotated);
+    }
 
-    const { error } = await supa()
-      .from("fixtures")
-      .update(payload)
-      .eq("id", id);
+    const firstLeg = [...fixtures];
+    firstLeg.forEach(f => {
+      fixtures.push({
+        round: f.round + (n - 1),
+        match_no: matchNo++,
+        home_id: f.away_id,
+        away_id: f.home_id
+      });
+    });
 
-    if (error) return handleError("updateScore", error);
-
+    await supa().from("fixtures").insert(fixtures);
     await loadData();
+
+    Swal.fire({
+      icon: "success",
+      title: "Jadwal selesai digenerate!",
+      confirmButtonColor: "#7b2cbf"
+    });
+
   } catch (err) {
-    handleError("updateScore crash", err);
+    handleError("generate fixtures crash", err);
   }
 };
 
 // ====================================================
-// STANDINGS (KLASEMEN)
+// STANDINGS CALCULATION (TIDAK DIUBAH)
 // ====================================================
-
 function renderStandings() {
-  standingsTbody.innerHTML = "";
+  const table = {};
 
-  const stats = {};
   state.teams.forEach(t => {
-    stats[t.id] = {
+    table[t.id] = {
       id: t.id,
       name: t.name,
-      P: 0, W: 0, D: 0, L: 0,
-      GF: 0, GA: 0, GD: 0, Pts: 0,
-      Form: []
+      p: 0, w: 0, d: 0, l: 0,
+      gf: 0, ga: 0, gd: 0,
+      pts: 0,
+      form: []
     };
   });
 
   state.fixtures.forEach(m => {
     if (m.gh == null || m.ga == null) return;
-    const home = stats[m.home_id];
-    const away = stats[m.away_id];
 
-    home.P++; away.P++;
-    home.GF += m.gh; home.GA += m.ga;
-    away.GF += m.ga; away.GA += m.gh;
+    const home = table[m.home_id];
+    const away = table[m.away_id];
+
+    home.p++; away.p++;
+    home.gf += m.gh; home.ga += m.ga;
+    away.gf += m.ga; away.ga += m.gh;
+
+    home.gd = home.gf - home.ga;
+    away.gd = away.gf - away.ga;
 
     if (m.gh > m.ga) {
-      home.W++; away.L++;
-      home.Form.unshift("W");
-      away.Form.unshift("L");
+      home.w++; away.l++;
+      home.pts += 3;
+      home.form.push("W");
+      away.form.push("L");
     } else if (m.gh < m.ga) {
-      away.W++; home.L++;
-      away.Form.unshift("W");
-      home.Form.unshift("L");
+      away.w++; home.l++;
+      away.pts += 3;
+      away.form.push("W");
+      home.form.push("L");
     } else {
-      home.D++; away.D++;
-      home.Form.unshift("D");
-      away.Form.unshift("D");
+      home.d++; away.d++;
+      home.pts++; away.pts++;
+      home.form.push("D");
+      away.form.push("D");
     }
   });
 
-  Object.values(stats).forEach(t => {
-    t.GD = t.GF - t.GA;
-    t.Pts = t.W * 3 + t.D;
-    t.Form = t.Form.slice(0, 5);
+  Object.values(table).forEach(t => {
+    t.form = t.form.slice(-5);
   });
 
-  const ordered = Object.values(stats).sort((a, b) => {
-    if (b.Pts !== a.Pts) return b.Pts - a.Pts;
-    if (b.GD !== a.GD) return b.GD - a.GD;
-    if (b.GF !== a.GF) return b.GF - a.GF;
-    return a.name.localeCompare(b.name);
-  });
+  const standings = Object.values(table).sort((a, b) =>
+    b.pts - a.pts ||
+    b.gd - a.gd ||
+    b.gf - a.gf ||
+    a.name.localeCompare(b.name)
+  );
 
-  ordered.forEach((t, idx) => {
+  standingsTbody.innerHTML = "";
+
+  standings.forEach((t, i) => {
     const tr = document.createElement("tr");
+
+    let cls = "";
+    if (i === 0) cls = "leader";
+    if (i >= standings.length - 2) cls = "relegation";
+    tr.className = cls;
+
     tr.innerHTML = `
-      <td>${idx + 1}</td>
-      <td>${escapeHtml(t.name)}</td>
-      <td>${t.P}</td>
-      <td>${t.W}</td>
-      <td>${t.D}</td>
-      <td>${t.L}</td>
-      <td>${t.GF}</td>
-      <td>${t.GA}</td>
-      <td>${t.GD}</td>
-      <td>${t.Pts}</td>
-      <td>
-        ${t.Form.map(f => {
-          if (f === "W") return `<span class="form-badge win">W</span>`;
-          if (f === "D") return `<span class="form-badge draw">D</span>`;
-          if (f === "L") return `<span class="form-badge loss">L</span>`;
-          return "";
+      <td>${i + 1}</td>
+      <td class="left">${escapeHtml(t.name)}</td>
+      <td>${t.p}</td>
+      <td>${t.w}</td>
+      <td>${t.d}</td>
+      <td>${t.l}</td>
+      <td>${t.gf}</td>
+      <td>${t.ga}</td>
+      <td>${t.gd}</td>
+      <td>${t.pts}</td>
+      <td class="last5-container">
+        ${t.form.map(f => {
+          const cls = f === "W" ? "win" : f === "D" ? "draw" : "lose";
+          return `<span class="form-badge ${cls}">${f}</span>`;
         }).join("")}
       </td>
     `;
+
     standingsTbody.appendChild(tr);
   });
 }
 
 // ====================================================
-// GENERATE DOUBLE ROUND ROBIN + match_no
+// RESET ALL — PASSWORD + SWEETALERT2
 // ====================================================
-
-generateBtn.onclick = async () => {
-  try {
-    const { data: teams, error: tErr } = await supa()
-      .from("teams")
-      .select("*")
-      .order("name", { ascending: true });
-
-    if (tErr) return handleError("generate load teams", tErr);
-    if (!teams || teams.length < 2)
-      return alert("Minimal 2 tim diperlukan.");
-
-    if (!confirm("Generate jadwal Double Round Robin?")) return;
-
-    let arr = teams.map(t => ({ id: t.id }));
-    const ghost = { id: null };
-    if (arr.length % 2 === 1) arr.push(ghost);
-
-    const rounds = arr.length - 1;
-    const half = arr.length / 2;
-    const first = [];
-
-    for (let r = 0; r < rounds; r++) {
-      for (let i = 0; i < half; i++) {
-        const A = arr[i];
-        const B = arr[arr.length - 1 - i];
-
-        if (A.id && B.id) {
-          const home = (r % 2 === 0) ? A : B;
-          const away = (r % 2 === 0) ? B : A;
-
-          first.push({
-            round: r + 1,
-            home_id: home.id,
-            away_id: away.id,
-            gh: null,
-            ga: null,
-            status: "PENDING"
-          });
-        }
-      }
-
-      arr = [arr[0], arr[arr.length - 1], ...arr.slice(1, arr.length - 1)];
-    }
-
-    const second = first.map(f => ({
-      round: f.round + rounds,
-      home_id: f.away_id,
-      away_id: f.home_id,
-      gh: null,
-      ga: null,
-      status: "PENDING"
-    }));
-
-    let allFixtures = [...first, ...second].sort((a, b) => a.round - b.round);
-
-    let counter = 1;
-    allFixtures = allFixtures.map(f => ({ ...f, match_no: counter++ }));
-
-    const { error: delErr } = await supa()
-      .from("fixtures")
-      .delete()
-      .neq("id", UUID_SENTINEL);
-
-    if (delErr) return handleError("generate delete old fixtures", delErr);
-
-    const { error: insErr } = await supa()
-      .from("fixtures")
-      .insert(allFixtures);
-
-    if (insErr) return handleError("generate insert new fixtures", insErr);
-
-    await loadData();
-    alert("Generate jadwal sukses!");
-  } catch (err) {
-    handleError("generate crash", err);
-  }
-};
-
-// ====================================================
-// RESET
-// ====================================================
-
 resetAllBtn.onclick = async () => {
-  try {
-    if (!confirm("Yakin ingin menghapus semua data (teams, fixtures, league)?")) return;
+  const { value: pass } = await Swal.fire({
+    title: "Password Admin",
+    input: "password",
+    inputLabel: "Masukkan password untuk mereset semua data:",
+    inputPlaceholder: "••••••••",
+    showCancelButton: true,
+    confirmButtonText: "Lanjut",
+    confirmButtonColor: "#d9534f",
+    cancelButtonColor: "#6c757d"
+  });
 
-    const { error: delF } = await supa()
-      .from("fixtures")
-      .delete()
-      .neq("id", UUID_SENTINEL);
-    if (delF) return handleError("reset fixtures", delF);
+  if (!pass) return;
 
-    const { error: delT } = await supa()
-      .from("teams")
-      .delete()
-      .neq("id", UUID_SENTINEL);
-    if (delT) return handleError("reset teams", delT);
-
-    const { error: delL } = await supa()
-      .from("league_info")
-      .delete()
-      .neq("id", INT_SENTINEL);
-    if (delL) return handleError("reset league_info", delL);
-
-    await loadData();
-    alert("Reset sukses.");
-  } catch (err) {
-    handleError("reset crash", err);
+  if (pass !== "Admin2025#") {
+    return Swal.fire({
+      icon: "error",
+      title: "Password salah!",
+      text: "Reset dibatalkan.",
+      confirmButtonColor: "#d33"
+    });
   }
-};
 
-// ====================================================
-// EXPORT JSON
-// ====================================================
+  const ok = await Swal.fire({
+    icon: "warning",
+    title: "Reset Semua Data?",
+    text: "Tindakan ini TIDAK bisa dibatalkan.",
+    showCancelButton: true,
+    confirmButtonText: "Ya, reset!",
+    confirmButtonColor: "#d9534f"
+  });
 
-exportJSON.onclick = async () => {
-  try {
-    await loadData();
-    const payload = {
-      league: { league_name: state.leagueName },
-      teams: state.teams,
-      fixtures: state.fixtures
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${state.leagueName || "league"}_data.json`;
-    a.click();
-  } catch (err) {
-    handleError("exportJSON", err);
-  }
-};
+  if (!ok.isConfirmed) return;
 
-// ====================================================
-// IMPORT JSON
-// ====================================================
+  await supa().from("fixtures").delete().neq("id", UUID_SENTINEL);
+  await supa().from("teams").delete().neq("id", UUID_SENTINEL);
+  await supa().from("league_info").update({ league_name: "" }).eq("id", 1);
 
-importJSON.onclick = () => {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "application/json";
-
-  input.onchange = e => {
-    const f = e.target.files[0];
-    if (!f) return;
-
-    const reader = new FileReader();
-    reader.onload = async evt => {
-      try {
-        const parsed = JSON.parse(evt.target.result);
-
-        if (!parsed.teams || !parsed.fixtures || !parsed.league)
-          return alert("Format JSON tidak sesuai.");
-
-        if (!confirm("Import akan menimpa semua data. Lanjut?")) return;
-
-        await supa().from("fixtures").delete().neq("id", UUID_SENTINEL);
-        await supa().from("teams").delete().neq("id", UUID_SENTINEL);
-        await supa().from("league_info").delete().neq("id", INT_SENTINEL);
-
-        await supa().from("league_info").insert([{ id: 1, league_name: parsed.league.league_name }]);
-
-        await supa().from("teams").insert(parsed.teams);
-
-        let fix = parsed.fixtures.sort((a, b) => a.match_no - b.match_no);
-        await supa().from("fixtures").insert(fix);
-
-        await loadData();
-        alert("Import JSON sukses.");
-      } catch (err) {
-        handleError("importJSON", err);
-      }
-    };
-    reader.readAsText(f);
-  };
-
-  input.click();
-};
-
-// ====================================================
-// DOWNLOAD EXCEL
-// ====================================================
-
-downloadStandings.onclick = () => {
-  try {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.table_to_sheet(document.getElementById("standingsTable"));
-    XLSX.utils.book_append_sheet(wb, ws, "Standings");
-    XLSX.writeFile(wb, "Standings.xlsx");
-  } catch (err) {
-    handleError("downloadStandings", err);
-  }
-};
-
-downloadFixtures.onclick = () => {
-  try {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.table_to_sheet(document.getElementById("fixturesTable"));
-    XLSX.utils.book_append_sheet(wb, ws, "Fixtures");
-    XLSX.writeFile(wb, "Fixtures.xlsx");
-  } catch (err) {
-    handleError("downloadFixtures", err);
-  }
-};
-
-// ====================================================
-// INIT
-// ====================================================
-
-async function init() {
   await loadData();
+
+  Swal.fire({
+    icon: "success",
+    title: "Semua data berhasil direset!",
+    confirmButtonColor: "#28a745"
+  });
+};
+
+// ====================================================
+// INITIALIZE
+// ====================================================
+async function init() {
   showPage(pageStandings);
+  await loadData();
 }
 
 init();
