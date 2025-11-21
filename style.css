@@ -550,3 +550,11 @@ input[type=number] { -moz-appearance: textfield; }
   border-radius: 6px;
   padding: 6px 10px;
 }
+/* Kolom Match No biar kecil */
+#fixturesTable th:first-child,
+#fixturesTable td:first-child {
+  width: 60px;       /* bisa 40–60px sesuai selera */
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+}

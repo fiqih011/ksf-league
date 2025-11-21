@@ -304,8 +304,9 @@ function renderFixtures() {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${m.round}</td>
-      <td class="left">${escapeHtml(getTeamNameById(m.home_id))}</td>
+  <td>${m.match_no ?? ""}</td>
+  <td>${m.round}</td>
+  <td class="left">${escapeHtml(getTeamNameById(m.home_id))}</td>
 
       <td><input type="number" id="gh-${m.id}" value="${gh}" class="score" disabled></td>
       <td>vs</td>
@@ -336,37 +337,54 @@ function renderFixtures() {
     };
 
     // SAVE SCORE (SweetAlert2)
-    document.getElementById(`save-${m.id}`).onclick = async () => {
-      const newGh = document.getElementById(`gh-${m.id}`).value;
-      const newGa = document.getElementById(`ga-${m.id}`).value;
+document.getElementById(`save-${m.id}`).onclick = async () => {
+  const newGh = document.getElementById(`gh-${m.id}`).value;
+  const newGa = document.getElementById(`ga-${m.id}`).value;
 
-      if (newGh === "" || newGa === "") {
-        return Swal.fire({
-          icon: "warning",
-          title: "Skor belum lengkap",
-          text: "Isi skor Home dan Away.",
-          confirmButtonColor: "#7b2cbf"
-        });
-      }
+  // Jika dua-duanya kosong → reset skor (PENDING)
+  if (newGh === "" && newGa === "") {
+    await supa().from("fixtures").update({
+      gh: null,
+      ga: null
+    }).eq("id", m.id);
 
-      const payload = {
-        gh: parseInt(newGh),
-        ga: parseInt(newGa),
-        status: "DONE"
-      };
+    await loadData();
 
-      await supa().from("fixtures").update(payload).eq("id", m.id);
+    return Swal.fire({
+      icon: "success",
+      title: "Skor dihapus",
+      text: "Pertandingan kembali ke status PENDING.",
+      confirmButtonColor: "#7b2cbf"
+    });
+  }
 
-      await loadData();
+  // Jika salah satu kosong → error
+  if (newGh === "" || newGa === "") {
+    return Swal.fire({
+      icon: "warning",
+      title: "Skor belum lengkap",
+      text: "Isi skor Home dan Away.",
+      confirmButtonColor: "#7b2cbf"
+    });
+  }
 
-      Swal.fire({
-        icon: "success",
-        title: "Skor tersimpan!",
-        timer: 1200,
-        showConfirmButton: false
-      });
-    };
+  // Jika dua-duanya angka → simpan normal & status DONE
+  const payload = {
+    gh: parseInt(newGh),
+    ga: parseInt(newGa),
+  };
 
+  await supa().from("fixtures").update(payload).eq("id", m.id);
+
+  await loadData();
+
+  Swal.fire({
+    icon: "success",
+    title: "Skor tersimpan!",
+    timer: 1200,
+    showConfirmButton: false
+  });
+};
     // CANCEL EDIT
     document.getElementById(`cancel-${m.id}`).onclick = () => {
       document.getElementById(`gh-${m.id}`).value = gh;
@@ -405,7 +423,7 @@ generateBtn.onclick = async () => {
   const ok = await Swal.fire({
     icon: "warning",
     title: "Generate ulang jadwal?",
-    text: "Semua jadwal lama akan terhapus!",
+    text: "Semua jadwal lama akan dihapus!",
     showCancelButton: true,
     confirmButtonColor: "#7b2cbf",
     cancelButtonColor: "#6c757d",
@@ -415,51 +433,96 @@ generateBtn.onclick = async () => {
   if (!ok.isConfirmed) return;
 
   try {
-    const teams = [...state.teams];
-    const n = teams.length;
+    // salin tim dari state
+    let teams = state.teams.map(t => ({ id: t.id, name: t.name }));
 
+    // Jika jumlah tim ganjil → tambah BYE
+    let hasBye = false;
+    if (teams.length % 2 !== 0) {
+      teams.push({ id: null, name: "BYE" });
+      hasBye = true;
+    }
+
+    const n = teams.length;            // total slot (termasuk BYE)
+    const roundsPerLeg = n - 1;        // jumlah ronde per leg (format FIFA)
+    const matchesPerRound = n / 2;
+
+    // hapus fixtures lama
     await supa().from("fixtures").delete().neq("id", UUID_SENTINEL);
 
     let fixtures = [];
     let matchNo = 1;
 
-    for (let r = 1; r <= n - 1; r++) {
-      for (let i = 0; i < n / 2; i++) {
-        fixtures.push({
-          round: r,
-          match_no: matchNo++,
-          home_id: teams[i].id,
-          away_id: teams[n - 1 - i].id
-        });
+    // -------------------------------
+    //  LEG 1 — BERGER TABLE
+    // -------------------------------
+    let arr = [...teams];
+
+    for (let r = 1; r <= roundsPerLeg; r++) {
+      for (let i = 0; i < matchesPerRound; i++) {
+        let home = arr[i];
+        let away = arr[n - 1 - i];
+
+        if (home.id !== null && away.id !== null) {
+          fixtures.push({
+            round: r,
+            match_no: matchNo++,
+            home_id: home.id,
+            away_id: away.id
+          });
+        }
       }
 
-      const fixed = teams[0];
-      const rotated = teams.splice(1);
-      rotated.unshift(rotated.pop());
-      teams.splice(1, 0, ...rotated);
+      // rotasi FIFA (circle method)
+      const anchor = arr[0];
+      const rest = arr.slice(1);
+      rest.unshift(rest.pop());
+      arr = [anchor, ...rest];
     }
 
-    const firstLeg = [...fixtures];
-    firstLeg.forEach(f => {
-      fixtures.push({
-        round: f.round + (n - 1),
-        match_no: matchNo++,
-        home_id: f.away_id,
-        away_id: f.home_id
-      });
-    });
+    // -------------------------------
+    //  LEG 2 — BERGER TABLE (ULANG) + SWAP
+    // -------------------------------
+    arr = [...teams]; // reset ke posisi awal
 
+    for (let r = 1; r <= roundsPerLeg; r++) {
+      for (let i = 0; i < matchesPerRound; i++) {
+        let home = arr[i];
+        let away = arr[n - 1 - i];
+
+        // swap home & away untuk leg ke-2
+        if (home.id !== null && away.id !== null) {
+          fixtures.push({
+            round: r + roundsPerLeg,
+            match_no: matchNo++,
+            home_id: away.id,
+            away_id: home.id
+          });
+        }
+      }
+
+      // rotasi ulang Berger
+      const anchor = arr[0];
+      const rest = arr.slice(1);
+      rest.unshift(rest.pop());
+      arr = [anchor, ...rest];
+    }
+
+    // safety: hapus kalau ada self-match (harusnya tidak ada)
+    fixtures = fixtures.filter(f => f.home_id !== f.away_id);
+
+    // simpan
     await supa().from("fixtures").insert(fixtures);
     await loadData();
 
     Swal.fire({
       icon: "success",
-      title: "Jadwal selesai digenerate!",
+      title: "Jadwal resmi FIFA/FC26 berhasil dibuat!",
       confirmButtonColor: "#7b2cbf"
     });
 
   } catch (err) {
-    handleError("generate fixtures crash", err);
+    handleError("generate fixtures", err);
   }
 };
 
